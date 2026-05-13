@@ -1,0 +1,72 @@
+<svg viewBox="0 0 860 500" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="13">
+  <rect width="860" height="500" fill="#0f1117"/>
+
+  <text x="430" y="35" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="bold">Circuit Breaker — State Machine</text>
+
+  <!-- CLOSED state -->
+  <circle cx="180" cy="220" r="90" fill="#14532d" stroke="#22c55e" stroke-width="3"/>
+  <text x="180" y="210" text-anchor="middle" fill="#bbf7d0" font-size="16" font-weight="bold">CLOSED</text>
+  <text x="180" y="232" text-anchor="middle" fill="#86efac" font-size="11">Bình thường</text>
+  <text x="180" y="250" text-anchor="middle" fill="#86efac" font-size="11">count failures</text>
+
+  <!-- OPEN state -->
+  <circle cx="680" cy="220" r="90" fill="#450a0a" stroke="#ef4444" stroke-width="3"/>
+  <text x="680" y="210" text-anchor="middle" fill="#fca5a5" font-size="16" font-weight="bold">OPEN</text>
+  <text x="680" y="232" text-anchor="middle" fill="#f87171" font-size="11">Fail fast</text>
+  <text x="680" y="250" text-anchor="middle" fill="#f87171" font-size="11">CircuitOpenError</text>
+
+  <!-- HALF_OPEN state -->
+  <circle cx="430" cy="390" r="80" fill="#422006" stroke="#f97316" stroke-width="3"/>
+  <text x="430" y="378" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="bold">HALF_OPEN</text>
+  <text x="430" y="398" text-anchor="middle" fill="#fb923c" font-size="11">1 probe request</text>
+  <text x="430" y="415" text-anchor="middle" fill="#fb923c" font-size="11">xem provider sống chưa</text>
+
+  <!-- CLOSED → OPEN arrow (top) -->
+  <path d="M 268 190 Q 430 110 592 190" fill="none" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arr-red)"/>
+  <text x="430" y="140" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">failure_count ≥ threshold (3)</text>
+  <text x="430" y="158" text-anchor="middle" fill="#f87171" font-size="11">reason: "failure_threshold_reached"</text>
+
+  <!-- OPEN → HALF_OPEN arrow (right-down) -->
+  <path d="M 620 295 Q 580 370 508 380" fill="none" stroke="#f97316" stroke-width="2.5" marker-end="url(#arr-orange)"/>
+  <text x="620" y="358" text-anchor="middle" fill="#f97316" font-size="12" font-weight="bold">reset_timeout</text>
+  <text x="620" y="375" text-anchor="middle" fill="#fb923c" font-size="11">elapses (2s)</text>
+  <text x="620" y="391" text-anchor="middle" fill="#fb923c" font-size="11">"reset_timeout_elapsed"</text>
+
+  <!-- HALF_OPEN → CLOSED arrow (success) -->
+  <path d="M 355 355 Q 250 320 195 307" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#arr-green)"/>
+  <text x="245" y="335" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="bold">probe success</text>
+  <text x="245" y="351" text-anchor="middle" fill="#4ade80" font-size="11">"probe_success"</text>
+
+  <!-- HALF_OPEN → OPEN arrow (fail) -->
+  <path d="M 508 360 Q 620 310 648 308" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arr-red)"/>
+  <text x="595" y="315" text-anchor="middle" fill="#ef4444" font-size="11">probe fail</text>
+  <text x="595" y="330" text-anchor="middle" fill="#f87171" font-size="11">"probe_failure"</text>
+
+  <!-- Code snippet boxes -->
+  <!-- allow_request -->
+  <rect x="30" y="350" width="250" height="90" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="40" y="370" fill="#94a3b8" font-size="10">allow_request():</text>
+  <text x="40" y="386" fill="#7dd3fc" font-size="10">  if OPEN and timeout → HALF_OPEN</text>
+  <text x="40" y="401" fill="#7dd3fc" font-size="10">  if OPEN → return False</text>
+  <text x="40" y="416" fill="#4ade80" font-size="10">  else → return True</text>
+  <text x="40" y="432" fill="#f87171" font-size="10">  CircuitOpenError nếu False</text>
+
+  <!-- record_failure snippet -->
+  <rect x="590" y="430" width="250" height="55" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="600" y="448" fill="#94a3b8" font-size="10">record_failure():</text>
+  <text x="600" y="464" fill="#fca5a5" font-size="10">  HALF_OPEN → OPEN ngay</text>
+  <text x="600" y="479" fill="#fca5a5" font-size="10">  CLOSED → count; OPEN nếu ≥ 3</text>
+
+  <!-- Defs -->
+  <defs>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#f97316"/>
+    </marker>
+  </defs>
+</svg>

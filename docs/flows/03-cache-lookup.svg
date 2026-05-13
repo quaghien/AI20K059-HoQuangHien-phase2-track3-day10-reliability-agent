@@ -1,0 +1,105 @@
+<svg viewBox="0 0 820 620" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="13">
+  <rect width="820" height="620" fill="#0f1117"/>
+
+  <text x="410" y="35" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="bold">Cache Lookup Flow</text>
+
+  <!-- START -->
+  <ellipse cx="410" cy="75" rx="100" ry="28" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+  <text x="410" y="80" text-anchor="middle" fill="#cbd5e1">cache.get(query)</text>
+
+  <!-- Arrow -->
+  <line x1="410" y1="103" x2="410" y2="130" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- Decision: is_uncacheable? -->
+  <polygon points="410,130 530,165 410,200 290,165" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+  <text x="410" y="160" text-anchor="middle" fill="#c7d2fe">_is_uncacheable</text>
+  <text x="410" y="178" text-anchor="middle" fill="#a5b4fc" font-size="11">(privacy check)</text>
+
+  <!-- YES → return None -->
+  <line x1="530" y1="165" x2="680" y2="165" stroke="#ef4444" stroke-width="2" marker-end="url(#a-red)"/>
+  <text x="600" y="155" fill="#ef4444" font-size="11" font-weight="bold">YES</text>
+  <rect x="690" y="145" width="110" height="40" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="745" y="163" text-anchor="middle" fill="#fca5a5" font-size="11">return</text>
+  <text x="745" y="179" text-anchor="middle" fill="#fca5a5" font-size="11">(None, 0.0)</text>
+
+  <!-- NO → down -->
+  <line x1="410" y1="200" x2="410" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+  <text x="370" y="220" fill="#4ade80" font-size="11">NO</text>
+
+  <!-- Exact match check -->
+  <rect x="270" y="230" width="280" height="50" rx="8" fill="#0c1a2e" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="410" y="251" text-anchor="middle" fill="#7dd3fc" font-weight="bold">Exact match (hash lookup)</text>
+  <text x="410" y="268" text-anchor="middle" fill="#38bdf8" font-size="11">HGET {prefix}{md5(query)}</text>
+
+  <line x1="410" y1="280" x2="410" y2="310" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- Decision: found? -->
+  <polygon points="410,310 520,340 410,370 300,340" fill="#1e1b4b" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="410" y="338" text-anchor="middle" fill="#7dd3fc">Found?</text>
+
+  <!-- YES exact → return -->
+  <line x1="520" y1="340" x2="680" y2="340" stroke="#4ade80" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="595" y="330" fill="#4ade80" font-size="11" font-weight="bold">YES</text>
+  <rect x="690" y="320" width="110" height="40" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="745" y="338" text-anchor="middle" fill="#86efac" font-size="11">return</text>
+  <text x="745" y="354" text-anchor="middle" fill="#86efac" font-size="11">(value, 1.0)</text>
+
+  <!-- NO → similarity scan -->
+  <line x1="410" y1="370" x2="410" y2="400" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+  <text x="370" y="390" fill="#f97316" font-size="11">NO</text>
+
+  <!-- Similarity scan -->
+  <rect x="240" y="400" width="340" height="60" rx="8" fill="#1c1917" stroke="#f97316" stroke-width="2"/>
+  <text x="410" y="423" text-anchor="middle" fill="#fed7aa" font-weight="bold">Similarity scan (SCAN all keys)</text>
+  <text x="410" y="441" text-anchor="middle" fill="#fb923c" font-size="11">similarity(query, cached_query) → Jaccard + bigram</text>
+  <text x="410" y="457" text-anchor="middle" fill="#fb923c" font-size="11">→ best_score, best_key</text>
+
+  <line x1="410" y1="460" x2="410" y2="490" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- Decision: score >= threshold? -->
+  <polygon points="410,490 550,520 410,550 270,520" fill="#1e1b4b" stroke="#a855f7" stroke-width="2"/>
+  <text x="410" y="514" text-anchor="middle" fill="#d8b4fe">score ≥ 0.92?</text>
+  <text x="410" y="532" text-anchor="middle" fill="#c084fc" font-size="10">(similarity threshold)</text>
+
+  <!-- NO → return None -->
+  <line x1="270" y1="520" x2="120" y2="520" stroke="#ef4444" stroke-width="2" marker-end="url(#a-red)"/>
+  <text x="195" y="510" fill="#ef4444" font-size="11" font-weight="bold">NO</text>
+  <rect x="30" y="500" width="90" height="40" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="75" y="518" text-anchor="middle" fill="#fca5a5" font-size="11">return</text>
+  <text x="75" y="534" text-anchor="middle" fill="#fca5a5" font-size="11">(None, score)</text>
+
+  <!-- YES → false hit check -->
+  <line x1="550" y1="520" x2="680" y2="520" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+  <text x="610" y="510" fill="#4ade80" font-size="11" font-weight="bold">YES</text>
+
+  <!-- Decision: false_hit? -->
+  <polygon points="745,500 800,520 745,540 690,520" fill="#422006" stroke="#f97316" stroke-width="2"/>
+  <text x="745" y="516" text-anchor="middle" fill="#fed7aa" font-size="10">false</text>
+  <text x="745" y="532" text-anchor="middle" fill="#fed7aa" font-size="10">hit?</text>
+
+  <!-- false hit YES → log and return None -->
+  <line x1="745" y1="500" x2="745" y2="440" stroke="#ef4444" stroke-width="2" marker-end="url(#a-red)"/>
+  <text x="758" y="470" fill="#ef4444" font-size="10">YES</text>
+  <rect x="685" y="400" width="120" height="36" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="745" y="416" text-anchor="middle" fill="#fca5a5" font-size="10">log false_hit</text>
+  <text x="745" y="430" text-anchor="middle" fill="#fca5a5" font-size="10">return (None, score)</text>
+
+  <!-- false hit NO → return value -->
+  <line x1="800" y1="520" x2="800" y2="580" stroke="#4ade80" stroke-width="2" marker-end="url(#a-green)"/>
+  <text x="810" y="555" fill="#4ade80" font-size="10">NO</text>
+  <rect x="730" y="580" width="140" height="36" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="800" y="597" text-anchor="middle" fill="#86efac" font-size="11">return (value, score)</text>
+  <text x="800" y="611" text-anchor="middle" fill="#4ade80" font-size="10">cache HIT ✓</text>
+
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="a-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+    </marker>
+    <marker id="a-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4ade80"/>
+    </marker>
+  </defs>
+</svg>

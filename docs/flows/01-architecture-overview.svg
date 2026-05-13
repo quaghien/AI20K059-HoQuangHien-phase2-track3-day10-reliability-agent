@@ -1,0 +1,101 @@
+<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="13">
+  <!-- Background -->
+  <rect width="900" height="560" fill="#0f1117"/>
+
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="bold">Reliability Gateway — Tổng quan kiến trúc</text>
+
+  <!-- USER -->
+  <rect x="380" y="60" width="140" height="44" rx="8" fill="#1e40af" stroke="#3b82f6" stroke-width="2"/>
+  <text x="450" y="87" text-anchor="middle" fill="#bfdbfe" font-weight="bold">User Request</text>
+
+  <!-- Arrow down to gateway -->
+  <line x1="450" y1="104" x2="450" y2="135" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- GATEWAY box -->
+  <rect x="280" y="135" width="340" height="44" rx="8" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+  <text x="450" y="162" text-anchor="middle" fill="#bbf7d0" font-weight="bold">ReliabilityGateway</text>
+
+  <!-- Arrow to CACHE -->
+  <line x1="340" y1="179" x2="190" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- Arrow to CB primary -->
+  <line x1="450" y1="179" x2="450" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- CACHE box -->
+  <rect x="60" y="230" width="230" height="64" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+  <text x="175" y="256" text-anchor="middle" fill="#c7d2fe" font-weight="bold">Cache Layer</text>
+  <text x="175" y="274" text-anchor="middle" fill="#a5b4fc" font-size="11">ResponseCache / SharedRedisCache</text>
+
+  <!-- HIT label -->
+  <text x="155" y="220" fill="#4ade80" font-size="11" font-weight="bold">① cache hit → trả ngay</text>
+
+  <!-- CB PRIMARY -->
+  <rect x="320" y="230" width="260" height="64" rx="8" fill="#422006" stroke="#f97316" stroke-width="2"/>
+  <text x="450" y="256" text-anchor="middle" fill="#fed7aa" font-weight="bold">CircuitBreaker: primary</text>
+  <text x="450" y="274" text-anchor="middle" fill="#fb923c" font-size="11">fail_rate=25% | latency=180ms</text>
+
+  <!-- Arrow from CB Primary to Provider Primary -->
+  <line x1="520" y1="294" x2="650" y2="330" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- Arrow from CB Primary down (fail) -->
+  <line x1="450" y1="294" x2="450" y2="340" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-red)"/>
+
+  <!-- PROVIDER PRIMARY -->
+  <rect x="580" y="330" width="200" height="44" rx="8" fill="#1c1917" stroke="#f97316" stroke-width="2"/>
+  <text x="680" y="357" text-anchor="middle" fill="#fdba74">Provider: primary</text>
+
+  <!-- CB BACKUP -->
+  <rect x="320" y="340" width="260" height="64" rx="8" fill="#312e81" stroke="#818cf8" stroke-width="2"/>
+  <text x="450" y="366" text-anchor="middle" fill="#c7d2fe" font-weight="bold">CircuitBreaker: backup</text>
+  <text x="450" y="384" text-anchor="middle" fill="#a5b4fc" font-size="11">fail_rate=5%  | latency=260ms</text>
+
+  <!-- Arrow from CB Backup to Provider Backup -->
+  <line x1="520" y1="404" x2="650" y2="430" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- Arrow from CB Backup down (all fail) -->
+  <line x1="450" y1="404" x2="450" y2="450" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-red)"/>
+
+  <!-- PROVIDER BACKUP -->
+  <rect x="580" y="420" width="200" height="44" rx="8" fill="#1c1917" stroke="#818cf8" stroke-width="2"/>
+  <text x="680" y="447" text-anchor="middle" fill="#c7d2fe">Provider: backup</text>
+
+  <!-- STATIC FALLBACK -->
+  <rect x="320" y="450" width="260" height="44" rx="8" fill="#450a0a" stroke="#ef4444" stroke-width="2"/>
+  <text x="450" y="477" text-anchor="middle" fill="#fca5a5" font-weight="bold">Static Fallback Message</text>
+
+  <!-- Labels on left -->
+  <text x="65" y="345" fill="#94a3b8" font-size="11">② cache miss</text>
+  <text x="295" y="323" fill="#ef4444" font-size="11">③ open/fail</text>
+  <text x="295" y="435" fill="#ef4444" font-size="11">④ all fail</text>
+
+  <!-- Route labels on right -->
+  <text x="700" y="322" fill="#4ade80" font-size="11">route: "primary"</text>
+  <text x="700" y="414" fill="#818cf8" font-size="11">route: "fallback:backup"</text>
+  <text x="370" y="510" fill="#ef4444" font-size="11">route: "static_fallback"</text>
+
+  <!-- Redis box under cache -->
+  <rect x="60" y="320" width="230" height="44" rx="8" fill="#0c1a2e" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="175" y="341" text-anchor="middle" fill="#7dd3fc" font-weight="bold">Redis</text>
+  <text x="175" y="357" text-anchor="middle" fill="#38bdf8" font-size="11">SharedRedisCache (shared state)</text>
+
+  <!-- Arrow cache to redis -->
+  <line x1="175" y1="294" x2="175" y2="320" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Metrics box -->
+  <rect x="60" y="430" width="230" height="64" rx="8" fill="#1a1a2e" stroke="#a855f7" stroke-width="2"/>
+  <text x="175" y="455" text-anchor="middle" fill="#d8b4fe" font-weight="bold">RunMetrics</text>
+  <text x="175" y="471" text-anchor="middle" fill="#c084fc" font-size="11">availability / P50/P95/P99</text>
+  <text x="175" y="487" text-anchor="middle" fill="#c084fc" font-size="11">cache_hit_rate / cost_saved</text>
+
+  <!-- Arrow gateway to metrics (dashed) -->
+  <line x1="280" y1="157" x2="175" y2="430" stroke="#a855f7" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="195" y="400" fill="#a855f7" font-size="10">collect metrics</text>
+
+  <!-- Arrowhead definitions -->
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+</svg>

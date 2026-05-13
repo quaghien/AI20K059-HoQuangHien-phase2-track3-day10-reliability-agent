@@ -1,0 +1,88 @@
+<svg viewBox="0 0 900 540" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="12">
+  <rect width="900" height="540" fill="#0f1117"/>
+
+  <text x="450" y="35" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="bold">Chaos Testing — Simulation Flow</text>
+
+  <!-- run_chaos.py -->
+  <rect x="330" y="60" width="240" height="44" rx="8" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+  <text x="450" y="80" text-anchor="middle" fill="#cbd5e1" font-weight="bold">scripts/run_chaos.py</text>
+  <text x="450" y="96" text-anchor="middle" fill="#64748b" font-size="11">load_config() + load_queries()</text>
+
+  <line x1="450" y1="104" x2="450" y2="130" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- run_simulation -->
+  <rect x="300" y="130" width="300" height="44" rx="8" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+  <text x="450" y="150" text-anchor="middle" fill="#bbf7d0" font-weight="bold">run_simulation(config, queries)</text>
+  <text x="450" y="166" text-anchor="middle" fill="#4ade80" font-size="11">iterate 5 scenarios</text>
+
+  <!-- 5 scenarios -->
+  <line x1="300" y1="152" x2="130" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="370" y1="174" x2="270" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="450" y1="174" x2="450" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="530" y1="174" x2="630" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="600" y1="152" x2="770" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- Scenario boxes -->
+  <rect x="30" y="200" width="180" height="50" rx="6" fill="#312e81" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="120" y="220" text-anchor="middle" fill="#c7d2fe" font-size="11" font-weight="bold">primary_timeout_100</text>
+  <text x="120" y="236" text-anchor="middle" fill="#a5b4fc" font-size="10">primary: 1.0 fail</text>
+  <text x="120" y="250" text-anchor="middle" fill="#818cf8" font-size="10">→ fallback:backup</text>
+
+  <rect x="220" y="200" width="160" height="50" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="300" y="220" text-anchor="middle" fill="#c7d2fe" font-size="11" font-weight="bold">primary_flaky_50</text>
+  <text x="300" y="236" text-anchor="middle" fill="#a5b4fc" font-size="10">primary: 0.5 fail</text>
+  <text x="300" y="250" text-anchor="middle" fill="#818cf8" font-size="10">→ circuit oscillates</text>
+
+  <rect x="390" y="200" width="120" height="50" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="450" y="220" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="bold">all_healthy</text>
+  <text x="450" y="236" text-anchor="middle" fill="#4ade80" font-size="10">no override</text>
+  <text x="450" y="250" text-anchor="middle" fill="#86efac" font-size="10">→ 100% avail</text>
+
+  <rect x="520" y="200" width="155" height="50" rx="6" fill="#422006" stroke="#f97316" stroke-width="1.5"/>
+  <text x="597" y="220" text-anchor="middle" fill="#fed7aa" font-size="11" font-weight="bold">backup_degraded</text>
+  <text x="597" y="236" text-anchor="middle" fill="#fb923c" font-size="10">p:0.9 b:0.4 fail</text>
+  <text x="597" y="250" text-anchor="middle" fill="#f97316" font-size="10">→ both struggle</text>
+
+  <rect x="685" y="200" width="120" height="50" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="745" y="220" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="bold">all_failing</text>
+  <text x="745" y="236" text-anchor="middle" fill="#f87171" font-size="10">p:1.0 b:1.0 fail</text>
+  <text x="745" y="250" text-anchor="middle" fill="#ef4444" font-size="10">→ static_fallback</text>
+
+  <!-- All → run_scenario -->
+  <line x1="120" y1="250" x2="340" y2="300" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a)"/>
+  <line x1="300" y1="250" x2="380" y2="300" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a)"/>
+  <line x1="450" y1="250" x2="450" y2="300" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a)"/>
+  <line x1="597" y1="250" x2="520" y2="300" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a)"/>
+  <line x1="745" y1="250" x2="560" y2="300" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a)"/>
+
+  <!-- run_scenario -->
+  <rect x="250" y="300" width="400" height="60" rx="8" fill="#1c1917" stroke="#f97316" stroke-width="2"/>
+  <text x="450" y="320" text-anchor="middle" fill="#fed7aa" font-weight="bold">run_scenario(config, queries, scenario)</text>
+  <text x="450" y="337" text-anchor="middle" fill="#fb923c" font-size="11">build_gateway() → 200 requests → gateway.complete(random query)</text>
+  <text x="450" y="353" text-anchor="middle" fill="#f97316" font-size="11">collect: latency, route, cache_hit, cost, errors</text>
+
+  <line x1="450" y1="360" x2="450" y2="388" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- _evaluate_scenario -->
+  <rect x="280" y="388" width="340" height="50" rx="8" fill="#1e1b4b" stroke="#a855f7" stroke-width="2"/>
+  <text x="450" y="408" text-anchor="middle" fill="#d8b4fe" font-weight="bold">_evaluate_scenario(name, result)</text>
+  <text x="450" y="426" text-anchor="middle" fill="#c084fc" font-size="11">check criteria → "pass" / "fail"</text>
+
+  <!-- Criteria boxes -->
+  <text x="290" y="458" fill="#94a3b8" font-size="10">criteria: primary_timeout → fallback_rate≥0.9</text>
+  <text x="290" y="472" fill="#94a3b8" font-size="10">         primary_flaky  → availability≥0.7</text>
+  <text x="290" y="486" fill="#94a3b8" font-size="10">         all_healthy    → availability≥0.95</text>
+  <text x="290" y="500" fill="#94a3b8" font-size="10">         all_failing    → static_fallbacks&gt;0</text>
+
+  <line x1="450" y1="438" x2="450" y2="508" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- Output -->
+  <rect x="270" y="508" width="360" height="24" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="450" y="525" text-anchor="middle" fill="#4ade80" font-size="11">→ metrics.json + cache_comparison.json  ✓</text>
+
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>
