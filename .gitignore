@@ -1,8 +1,8 @@
 .venv/
+.env
 __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
 *.pyc
-reports/metrics.json
-reports/final_report.md
+*.egg-info/
