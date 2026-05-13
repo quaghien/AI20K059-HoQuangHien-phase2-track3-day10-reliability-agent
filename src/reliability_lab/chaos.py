@@ -60,7 +60,7 @@ def calculate_recovery_time_ms(gateway: ReliabilityGateway) -> float | None:
         open_ts: float | None = None
         for entry in breaker.transition_log:
             if entry["to"] == "open" and open_ts is None:
-                open_ts = entry["ts"]
+                open_ts = float(entry["ts"])
             elif entry["to"] == "closed" and open_ts is not None:
                 recovery_times.append((float(entry["ts"]) - open_ts) * 1000)
                 open_ts = None
@@ -82,13 +82,14 @@ def run_scenario(config: LabConfig, queries: list[str], scenario: ScenarioConfig
         if result.cache_hit:
             metrics.cache_hits += 1
             metrics.estimated_cost_saved += 0.001
-        if result.route == "fallback":
-            metrics.fallback_successes += 1
-            metrics.successful_requests += 1
-        elif result.route == "static_fallback":
+        if result.route == "static_fallback":
             metrics.static_fallbacks += 1
             metrics.failed_requests += 1
+        elif result.route.startswith("fallback:"):
+            metrics.fallback_successes += 1
+            metrics.successful_requests += 1
         else:
+            # primary hoặc cache_hit
             metrics.successful_requests += 1
         if result.latency_ms:
             metrics.latencies_ms.append(result.latency_ms)
@@ -100,26 +101,59 @@ def run_scenario(config: LabConfig, queries: list[str], scenario: ScenarioConfig
     return metrics
 
 
-def run_simulation(config: LabConfig, queries: list[str]) -> RunMetrics:
-    """Run all named scenarios from config, or a default run if none defined.
+SCENARIO_CRITERIA: dict[str, object] = {
+    # primary_timeout_100: primary 100% fail → backup phải xử lý, fallback rate >= 0.9
+    "primary_timeout_100": lambda r: r.fallback_success_rate >= 0.9,
+    # primary_flaky_50: primary fail 50% → circuit mở, availability > 0.7
+    "primary_flaky_50": lambda r: r.availability >= 0.7,
+    # all_healthy: cả hai healthy → availability >= 0.95
+    "all_healthy": lambda r: r.availability >= 0.95,
+    # backup_degraded: cả hai bị suy giảm → vẫn phải serve được >= 50%
+    "backup_degraded": lambda r: r.availability >= 0.5,
+    # all_failing: tất cả fail → static_fallback phải kích hoạt
+    "all_failing": lambda r: r.static_fallbacks > 0,
+}
 
-    TODO(student): Add a cache vs no-cache comparison scenario.
-    Extend with your own custom scenarios (e.g., cost cap near limit).
-    """
+
+def _evaluate_scenario(name: str, result: RunMetrics) -> str:
+    criterion = SCENARIO_CRITERIA.get(name)
+    if criterion is None:
+        return "pass" if result.successful_requests > 0 else "fail"
+    passed: bool = bool(criterion(result))  # type: ignore[operator]
+    return "pass" if passed else "fail"
+
+
+def run_cache_comparison(config: LabConfig, queries: list[str]) -> dict[str, object]:
+    """So sánh metrics với cache bật và tắt."""
+    results: dict[str, object] = {}
+    for cache_enabled in [False, True]:
+        cfg = copy.deepcopy(config)
+        cfg.cache.enabled = cache_enabled
+        label = "with_cache" if cache_enabled else "without_cache"
+        scenario = ScenarioConfig(name=label, description="cache comparison")
+        r = run_scenario(cfg, queries, scenario)
+        results[label] = {
+            "latency_p50_ms": round(r.percentile(50), 2),
+            "latency_p95_ms": round(r.percentile(95), 2),
+            "estimated_cost": round(r.estimated_cost, 6),
+            "cache_hit_rate": round(r.cache_hit_rate, 4),
+            "availability": round(r.availability, 4),
+        }
+    return results
+
+
+def run_simulation(config: LabConfig, queries: list[str]) -> RunMetrics:
+    """Run all named scenarios from config, or a default run if none defined."""
     if not config.scenarios:
         default_scenario = ScenarioConfig(name="default", description="baseline run")
         metrics = run_scenario(config, queries, default_scenario)
-        metrics.scenarios = {"default": "pass" if metrics.successful_requests > 0 else "fail"}
+        metrics.scenarios = {"default": _evaluate_scenario("default", metrics)}
         return metrics
 
     combined = RunMetrics()
     for scenario in config.scenarios:
         result = run_scenario(config, queries, scenario)
-
-        # TODO(student): Define pass/fail criteria per scenario.
-        # Example: primary_timeout_100 passes if fallback_success_rate > 0.9
-        passed = result.successful_requests > 0
-        combined.scenarios[scenario.name] = "pass" if passed else "fail"
+        combined.scenarios[scenario.name] = _evaluate_scenario(scenario.name, result)
 
         combined.total_requests += result.total_requests
         combined.successful_requests += result.successful_requests
